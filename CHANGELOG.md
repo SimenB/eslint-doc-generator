@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.5.0](https://github.com/SimenB/eslint-doc-generator/compare/v2.4.0...v2.5.0) (2025-12-05)
+
+
+### Features
+
+* add recommended-type-checked: ☑️ to preset emojis ([#518](https://github.com/SimenB/eslint-doc-generator/issues/518)) ([2a49eda](https://github.com/SimenB/eslint-doc-generator/commit/2a49edaca145d4ca575a36fff558fb5ec7aa670c))
+* receive plugin name via plugin metadata ([712417b](https://github.com/SimenB/eslint-doc-generator/commit/712417b7d146eaf2c7cf541b9bfea1b7a6057e3f))
+* use Prettier to detect end of line in addition to EditorConfig ([#803](https://github.com/SimenB/eslint-doc-generator/issues/803)) ([c0ad58b](https://github.com/SimenB/eslint-doc-generator/commit/c0ad58bd23d459f955e40ea04e739df20730f3f2))
+
+
+### Bug Fixes
+
+* no-op for testing release-please ([#739](https://github.com/SimenB/eslint-doc-generator/issues/739)) ([0492d97](https://github.com/SimenB/eslint-doc-generator/commit/0492d97b56a0ffa42fdb8272b8f32c9ec7a9deca))
+* no-op for testing release-please ([#745](https://github.com/SimenB/eslint-doc-generator/issues/745)) ([d40250d](https://github.com/SimenB/eslint-doc-generator/commit/d40250d8d2726be423f7871916e20aa590b9386b))
+* no-op for testing release-please ([#751](https://github.com/SimenB/eslint-doc-generator/issues/751)) ([ade5adf](https://github.com/SimenB/eslint-doc-generator/commit/ade5adf161fc7bb9a6fbac65954370034a2d237f))
+* OS-agnostic handling of end-of-line characters ([#524](https://github.com/SimenB/eslint-doc-generator/issues/524)) ([4852197](https://github.com/SimenB/eslint-doc-generator/commit/485219789f1bffd6e96e81a7a3b05f3053d20e33))
+* **package-json:** refine ESM logic to return default export only when it is the only available export ([#658](https://github.com/SimenB/eslint-doc-generator/issues/658)) ([d194eae](https://github.com/SimenB/eslint-doc-generator/commit/d194eaee5fbce1d998636a5d70d06c26a577affb))
+* prettier peer dep should be optional ([#821](https://github.com/SimenB/eslint-doc-generator/issues/821)) ([5b331cf](https://github.com/SimenB/eslint-doc-generator/commit/5b331cf258516e8dad242be4ac8d0f9de019b2d0))
+* Remove typeRoots and adjust types for Jest support ([#574](https://github.com/SimenB/eslint-doc-generator/issues/574)) ([0ad8110](https://github.com/SimenB/eslint-doc-generator/commit/0ad8110010c919170c524c4bee825dfd2ca2b031))
+* spacing for deprecated rule replaced by csv list ([#731](https://github.com/SimenB/eslint-doc-generator/issues/731)) ([97a77fe](https://github.com/SimenB/eslint-doc-generator/commit/97a77fef0b78ac1fe016aa9230e42d9378244d2b))
+
 ## [2.4.0](https://github.com/bmish/eslint-doc-generator/compare/v2.3.0...v2.4.0) (2025-12-05)
 
 
