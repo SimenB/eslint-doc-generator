@@ -1,5 +1,46 @@
 # Changelog
 
+## [4.0.0](https://github.com/SimenB/eslint-doc-generator/compare/v3.1.0...v4.0.0) (2026-02-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update default rule doc title and notices to separate rule name and description
+* Add default emoji for `base` config
+* Remove implicit config badge fallback
+* Require Node 20, 22, 24+
+
+### Features
+
+* Add default emoji for `base` config ([c3f1fb9](https://github.com/SimenB/eslint-doc-generator/commit/c3f1fb9e93c65504a01124275811ccd3c377f75d))
+* add recommended-type-checked: ☑️ to preset emojis ([#518](https://github.com/SimenB/eslint-doc-generator/issues/518)) ([2a49eda](https://github.com/SimenB/eslint-doc-generator/commit/2a49edaca145d4ca575a36fff558fb5ec7aa670c))
+* receive plugin name via plugin metadata ([712417b](https://github.com/SimenB/eslint-doc-generator/commit/712417b7d146eaf2c7cf541b9bfea1b7a6057e3f))
+* Remove implicit config badge fallback ([654667c](https://github.com/SimenB/eslint-doc-generator/commit/654667c15f1b20094c750949d7a715b863257092))
+* Require Node 20, 22, 24+ ([af5ab75](https://github.com/SimenB/eslint-doc-generator/commit/af5ab75008e08d5ae9f338169c7a28cedb4b446f))
+* Update default rule doc title and notices to separate rule name and description ([3d4b160](https://github.com/SimenB/eslint-doc-generator/commit/3d4b160a088a50dd70dd37a2512be9767a4e256b))
+* Update dependencies ([828d6cf](https://github.com/SimenB/eslint-doc-generator/commit/828d6cf5f0606624dc3ae6b70c63b4be165be056))
+* use Prettier to detect end of line in addition to EditorConfig ([#803](https://github.com/SimenB/eslint-doc-generator/issues/803)) ([c0ad58b](https://github.com/SimenB/eslint-doc-generator/commit/c0ad58bd23d459f955e40ea04e739df20730f3f2))
+* Use rule option defaults from `meta.defaultOptions` with fallback to schema default  ([#885](https://github.com/SimenB/eslint-doc-generator/issues/885)) ([aed5575](https://github.com/SimenB/eslint-doc-generator/commit/aed5575ba6d586bd23dba3f06ffa21825efe26f8))
+
+
+### Bug Fixes
+
+* Enable TypeScript option `erasableSyntaxOnly` ([ec3b08e](https://github.com/SimenB/eslint-doc-generator/commit/ec3b08e762c426e894e307a73081b519580f68a5))
+* Modernize TypeScript config ([ddf74e3](https://github.com/SimenB/eslint-doc-generator/commit/ddf74e3eb0604d11abb4a72f046967fa2ade9d49))
+* no-op for testing release-please ([#739](https://github.com/SimenB/eslint-doc-generator/issues/739)) ([0492d97](https://github.com/SimenB/eslint-doc-generator/commit/0492d97b56a0ffa42fdb8272b8f32c9ec7a9deca))
+* no-op for testing release-please ([#745](https://github.com/SimenB/eslint-doc-generator/issues/745)) ([d40250d](https://github.com/SimenB/eslint-doc-generator/commit/d40250d8d2726be423f7871916e20aa590b9386b))
+* no-op for testing release-please ([#751](https://github.com/SimenB/eslint-doc-generator/issues/751)) ([ade5adf](https://github.com/SimenB/eslint-doc-generator/commit/ade5adf161fc7bb9a6fbac65954370034a2d237f))
+* OS-agnostic handling of end-of-line characters ([#524](https://github.com/SimenB/eslint-doc-generator/issues/524)) ([4852197](https://github.com/SimenB/eslint-doc-generator/commit/485219789f1bffd6e96e81a7a3b05f3053d20e33))
+* **package-json:** refine ESM logic to return default export only when it is the only available export ([#658](https://github.com/SimenB/eslint-doc-generator/issues/658)) ([d194eae](https://github.com/SimenB/eslint-doc-generator/commit/d194eaee5fbce1d998636a5d70d06c26a577affb))
+* prettier peer dep should be optional ([#821](https://github.com/SimenB/eslint-doc-generator/issues/821)) ([5b331cf](https://github.com/SimenB/eslint-doc-generator/commit/5b331cf258516e8dad242be4ac8d0f9de019b2d0))
+* Remove mock-fs due to Jest 30 incompatibility ([#841](https://github.com/SimenB/eslint-doc-generator/issues/841)) ([bf79a57](https://github.com/SimenB/eslint-doc-generator/commit/bf79a5710dc5eeacc47e5c2a7155f4cdda5f3933))
+* Remove typeRoots and adjust types for Jest support ([#574](https://github.com/SimenB/eslint-doc-generator/issues/574)) ([0ad8110](https://github.com/SimenB/eslint-doc-generator/commit/0ad8110010c919170c524c4bee825dfd2ca2b031))
+* Replace jest with vitest ([#844](https://github.com/SimenB/eslint-doc-generator/issues/844)) ([af24353](https://github.com/SimenB/eslint-doc-generator/commit/af243532edd03ca97824c26a04854d14fc7e06a1))
+* Rule doc notice for description should come first ([#839](https://github.com/SimenB/eslint-doc-generator/issues/839)) ([bd4fccd](https://github.com/SimenB/eslint-doc-generator/commit/bd4fccd9084b3bae164e5a1bb62472f43cb162a0))
+* spacing for deprecated rule replaced by csv list ([#731](https://github.com/SimenB/eslint-doc-generator/issues/731)) ([97a77fe](https://github.com/SimenB/eslint-doc-generator/commit/97a77fef0b78ac1fe016aa9230e42d9378244d2b))
+* Upgrade to Jest 30 ([8e6ecff](https://github.com/SimenB/eslint-doc-generator/commit/8e6ecff8689da52d55943282cd2a6cf84b31cefc))
+* Use tsgo instead of tsc for faster type-checking ([#847](https://github.com/SimenB/eslint-doc-generator/issues/847)) ([3ae507b](https://github.com/SimenB/eslint-doc-generator/commit/3ae507b22cb0e2f9de183a359e4216d617774439))
+
 ## [3.1.0](https://github.com/eslint-community/eslint-doc-generator/compare/v3.0.2...v3.1.0) (2026-02-14)
 
 
