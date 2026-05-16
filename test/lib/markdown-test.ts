@@ -1,12 +1,77 @@
 import { outdent } from 'outdent';
-import { findSectionHeader } from '../../lib/markdown.js';
+import {
+  extractFrontmatter,
+  findSectionHeader,
+  replaceOrCreateFrontmatter,
+  replaceOrCreateHeader,
+} from '../../lib/markdown.js';
 import { getContext } from '../../lib/context.js';
 
 const cwd = process.cwd();
 const context = await getContext(cwd, undefined, true);
 
+function normalize(markdown: string) {
+  return markdown.split('\n').join(context.endOfLine);
+}
+
 describe('markdown', function () {
-  describe('#findSectionHeader', function () {
+  describe('extractFrontmatter', function () {
+    it('should extract frontmatter when it is present at the beginning of the file', function () {
+      const markdown = outdent`
+        ---
+        title: Test Rule
+        description: This is a test rule.
+        ---
+        # Test Rule
+        This is the content of the rule doc.
+      `;
+
+      expect(context).toBeDefined();
+      expect(extractFrontmatter(context, markdown)).toBe(outdent`
+        ---
+        title: Test Rule
+        description: This is a test rule.
+        ---
+      `);
+    });
+
+    it('should return undefined if there is no frontmatter', function () {
+      const markdown = outdent`
+        # Test Rule
+        This is the content of the rule doc.
+      `;
+
+      expect(context).toBeDefined();
+      expect(extractFrontmatter(context, markdown)).toBeUndefined();
+    });
+
+    it('should return undefined if there is only one frontmatter delimiter', function () {
+      const markdown = outdent`
+        ---
+        # Test Rule
+        This is the content of the rule doc.
+      `;
+
+      expect(context).toBeDefined();
+      expect(extractFrontmatter(context, markdown)).toBeUndefined();
+    });
+
+    it('should return undefined if there is a frontmatter-like section that does not start at the beginning of the file', function () {
+      const markdown = outdent`
+        # Test Rule
+        This is the content of the rule doc.
+        ---
+        title: Test Rule
+        description: This is a test rule.
+        ---
+      `;
+
+      expect(context).toBeDefined();
+      expect(extractFrontmatter(context, markdown)).toBeUndefined();
+    });
+  });
+
+  describe('findSectionHeader', function () {
     it('handles standard section title', function () {
       const title = '## Rules\n';
       expect(findSectionHeader(context, title, 'rules')).toBe(title);
@@ -61,6 +126,224 @@ describe('markdown', function () {
           'rules',
         ),
       ).toBe('## Rules\n');
+    });
+  });
+
+  describe('replaceOrCreateFrontmatter', function () {
+    it('should leave everything as it was when no frontmatter was passed in (none existing)', function () {
+      const markdown = normalize(
+        outdent`
+          # Rule
+          Intro sentence.
+          <!-- marker -->
+          Rule description.
+        `,
+      );
+
+      expect(replaceOrCreateFrontmatter(context, markdown, undefined)).toBe(
+        markdown,
+      );
+    });
+
+    it('should leave everything as it was when no frontmatter was passed in (existing frontmatter)', function () {
+      const markdown = normalize(
+        outdent`
+          ---
+          name: no-foo
+          description: Some description
+          ---
+          # Rule
+          Intro sentence.
+          <!-- marker -->
+          Rule description.
+        `,
+      );
+
+      expect(replaceOrCreateFrontmatter(context, markdown, undefined)).toBe(
+        markdown,
+      );
+    });
+
+    it('should create new frontmatter when no existing frontmatter exists', function () {
+      const markdown = normalize(
+        outdent`
+          Rule description.
+        `,
+      );
+      const newFrontmatter = normalize(
+        outdent`
+          ---
+          title: New Rule
+          ---
+        `,
+      );
+
+      expect(
+        replaceOrCreateFrontmatter(context, markdown, newFrontmatter),
+      ).toBe(`${newFrontmatter}${context.endOfLine}${markdown}`);
+    });
+
+    it('should replace existing frontmatter with the specified new frontmatter', function () {
+      const markdown = normalize(
+        outdent`
+          ---
+          title: Old Rule
+          ---
+          Rule description.
+        `,
+      );
+      const newFrontmatter = normalize(
+        outdent`
+          ---
+          title: New Rule
+          ---
+        `,
+      );
+
+      expect(
+        replaceOrCreateFrontmatter(context, markdown, newFrontmatter),
+      ).toBe(`${newFrontmatter}${context.endOfLine}Rule description.`);
+    });
+  });
+
+  describe('replaceOrCreateHeader', function () {
+    it('should create a new header when no existing header or marker exists', function () {
+      const markdown = normalize(
+        outdent`
+          This is the content of the rule doc.
+        `,
+      );
+      const newHeader = normalize(
+        outdent`
+          # New Rule
+          <!-- marker -->
+        `,
+      );
+
+      expect(
+        replaceOrCreateHeader(context, markdown, newHeader, '<!-- marker -->'),
+      ).toBe(`${newHeader}${context.endOfLine}${markdown}`);
+    });
+
+    it('should replace an existing title header and preserve the original body', function () {
+      const markdown = normalize(
+        outdent`
+          # Old Rule
+          Rule description.
+        `,
+      );
+      const newHeader = normalize(
+        outdent`
+          # New Rule
+          <!-- marker -->
+        `,
+      );
+
+      expect(
+        replaceOrCreateHeader(context, markdown, newHeader, '<!-- marker -->'),
+      ).toBe(`${newHeader}${context.endOfLine}Rule description.`);
+    });
+
+    it('should replace everything up to the marker and keep content after the marker', function () {
+      const markdown = normalize(
+        outdent`
+          # Old Rule
+          Intro sentence.
+          <!-- marker -->
+          Rule description.
+        `,
+      );
+      const newHeader = normalize(
+        outdent`
+          # New Rule
+          <!-- marker -->
+        `,
+      );
+
+      expect(
+        replaceOrCreateHeader(context, markdown, newHeader, '<!-- marker -->'),
+      ).toBe(`${newHeader}${context.endOfLine}Rule description.`);
+    });
+
+    it('should preserve frontmatter and doc body when replacing header', function () {
+      const frontmatter = normalize(
+        outdent`
+          ---
+          title: Old Rule
+          ---
+        `,
+      );
+      const markdown = normalize(
+        outdent`
+          ${frontmatter}
+          # Old Rule
+          Rule description.
+        `,
+      );
+      const newHeader = normalize(
+        outdent`
+          # New Rule
+          <!-- marker -->
+        `,
+      );
+
+      expect(
+        replaceOrCreateHeader(context, markdown, newHeader, '<!-- marker -->'),
+      ).toBe(
+        `${frontmatter}${context.endOfLine}${newHeader}${context.endOfLine}Rule description.`,
+      );
+    });
+
+    it('should should preserve additional content between frontmatter and header', function () {
+      const frontmatter = normalize(
+        outdent`
+          ---
+          title: Old Rule
+          ---
+        `,
+      );
+      const markdown = normalize(
+        outdent`
+          ${frontmatter}
+          > 📌 A blockquote that should be preserved.
+          # Old Rule
+          Rule description.
+        `,
+      );
+      const newHeader = normalize(
+        outdent`
+          # New Rule
+          <!-- marker -->
+        `,
+      );
+
+      expect(
+        replaceOrCreateHeader(context, markdown, newHeader, '<!-- marker -->'),
+      ).toBe(
+        `${frontmatter}${context.endOfLine}> 📌 A blockquote that should be preserved.${context.endOfLine}${newHeader}${context.endOfLine}Rule description.`,
+      );
+    });
+
+    it('should should preserve additional content above header when no frontmatter exists', function () {
+      const markdown = normalize(
+        outdent`
+          > 📌 A blockquote that should be preserved.
+          # Old Rule
+          Rule description.
+        `,
+      );
+      const newHeader = normalize(
+        outdent`
+          # New Rule
+          <!-- marker -->
+        `,
+      );
+
+      expect(
+        replaceOrCreateHeader(context, markdown, newHeader, '<!-- marker -->'),
+      ).toBe(
+        `> 📌 A blockquote that should be preserved.${context.endOfLine}${newHeader}${context.endOfLine}Rule description.`,
+      );
     });
   });
 });

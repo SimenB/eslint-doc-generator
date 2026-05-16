@@ -14,9 +14,11 @@ import {
   END_RULE_OPTIONS_LIST_MARKER,
 } from './comment-markers.js';
 import {
+  extractFrontmatter,
   replaceOrCreateHeader,
   expectContentOrFail,
   expectSectionHeaderOrFail,
+  replaceOrCreateFrontmatter,
 } from './markdown.js';
 import { diff } from 'jest-diff';
 import type { GenerateOptions, RuleModule } from './types.js';
@@ -25,6 +27,7 @@ import { updateRuleOptionsList } from './rule-options-list.js';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { getContext } from './context.js';
 import { generateSuggestedEmojis } from './suggest-emojis.js';
+import { generateFrontmatterLines } from './frontmatter.js';
 
 // eslint-disable-next-line complexity
 export async function generate(path: string, userOptions?: GenerateOptions) {
@@ -127,24 +130,33 @@ export async function generate(path: string, userOptions?: GenerateOptions) {
       initializedRuleDoc = true;
     }
 
-    // Regenerate the header (title/notices) of each rule doc.
-    const newHeaderLines = generateRuleHeaderLines(context, description, name);
-
     const contentsOldBuffer = await readFile(pathToDoc);
     const contentsOld = contentsOldBuffer.toString();
-    const contentsNew = await postprocess(
-      updateRuleOptionsList(
-        context,
-        replaceOrCreateHeader(
-          context,
-          contentsOld,
-          newHeaderLines,
-          END_RULE_HEADER_MARKER,
-        ),
-        rule,
-      ),
-      resolve(pathToDoc),
+    const frontmatterOld = extractFrontmatter(context, contentsOld);
+
+    // Regenerate the header (title/notices) and frontmatter of each rule doc.
+    const newHeaderLines = generateRuleHeaderLines(context, description, name);
+    const newFrontmatterLines = generateFrontmatterLines(
+      context,
+      name,
+      description,
+      frontmatterOld,
     );
+
+    // Generate the new content for the rule doc by replacing the header and frontmatter, and updating the rule options list if necessary.
+    let contentsNew = replaceOrCreateFrontmatter(
+      context,
+      contentsOld,
+      newFrontmatterLines,
+    );
+    contentsNew = replaceOrCreateHeader(
+      context,
+      contentsNew,
+      newHeaderLines,
+      END_RULE_HEADER_MARKER,
+    );
+    contentsNew = updateRuleOptionsList(context, contentsNew, rule);
+    contentsNew = await postprocess(contentsNew, resolve(pathToDoc));
 
     if (check) {
       /* istanbul ignore next -- V8 branch coverage doesn't detect this branch is tested */

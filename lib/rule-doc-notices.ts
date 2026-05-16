@@ -15,20 +15,16 @@ import { SEVERITY_TYPE, NOTICE_TYPE } from './types.js';
 import type { RuleModule, DeprecatedInfo, ReplacedByInfo } from './types.js';
 import type { RULE_TYPE } from './rule-type.js';
 import { RULE_TYPE_MESSAGES_NOTICES } from './rule-type.js';
-import type { RuleDocTitleFormat } from './rule-doc-title-format.js';
 import { hasOptions } from './rule-options.js';
 import {
   getLinkToRule,
   getMarkdownLink,
   replaceRulePlaceholder,
 } from './rule-link.js';
-import {
-  toSentenceCase,
-  removeTrailingPeriod,
-  addTrailingPeriod,
-} from './string.js';
+import { toSentenceCase, addTrailingPeriod } from './string.js';
 import { configNameToDisplay } from './config-format.js';
 import type { Context } from './context.js';
+import { makeRuleDocTitle } from './rule-doc-title.js';
 
 function severityToTerminology(severity: SEVERITY_TYPE) {
   switch (severity) {
@@ -474,110 +470,24 @@ function getRuleNoticeLines(context: Context, ruleName: string) {
   return lines;
 }
 
-function makeRuleDocTitle(
-  context: Context,
-  name: string,
-  description: string | undefined,
-) {
-  const { options, pluginPrefix } = context;
-  const { ruleDocTitleFormat } = options;
-
-  const descriptionFormatted = description
-    ? removeTrailingPeriod(toSentenceCase(description))
-    : undefined;
-
-  let ruleDocTitleFormatWithFallback: RuleDocTitleFormat = ruleDocTitleFormat;
-
-  if (ruleDocTitleFormatWithFallback.includes('desc') && !description) {
-    // If format includes the description but the rule is missing a description,
-    // fallback to the corresponding format without the description.
-    switch (ruleDocTitleFormatWithFallback) {
-      case 'desc':
-      case 'desc-parens-prefix-name': {
-        ruleDocTitleFormatWithFallback = 'prefix-name';
-        break;
-      }
-
-      case 'desc-parens-name': {
-        ruleDocTitleFormatWithFallback = 'name';
-        break;
-      }
-
-      /* istanbul ignore next -- this shouldn't happen */
-      default: {
-        throw new Error(
-          `Unhandled rule doc title format fallback: ${
-            ruleDocTitleFormatWithFallback
-          }`,
-        );
-      }
-    }
-  }
-
-  switch (ruleDocTitleFormatWithFallback) {
-    // Backticks (code-style) only used around rule name to differentiate it when the rule description is also present.
-    case 'desc': {
-      /* istanbul ignore next -- this shouldn't happen */
-      if (!descriptionFormatted) {
-        throw new Error(
-          'Attempting to display non-existent description in rule doc title.',
-        );
-      }
-      return `# ${descriptionFormatted}`;
-    }
-
-    case 'desc-parens-name': {
-      /* istanbul ignore next -- this shouldn't happen */
-      if (!descriptionFormatted) {
-        throw new Error(
-          'Attempting to display non-existent description in rule doc title.',
-        );
-      }
-      return `# ${descriptionFormatted} (\`${name}\`)`;
-    }
-
-    case 'desc-parens-prefix-name': {
-      /* istanbul ignore next -- this shouldn't happen */
-      if (!descriptionFormatted) {
-        throw new Error(
-          'Attempting to display non-existent description in rule doc title.',
-        );
-      }
-      return `# ${descriptionFormatted} (\`${pluginPrefix}/${name}\`)`;
-    }
-
-    case 'name': {
-      return `# ${name}`;
-    }
-
-    case 'prefix-name': {
-      return `# ${pluginPrefix}/${name}`;
-    }
-
-    /* istanbul ignore next -- this shouldn't happen */
-    default: {
-      throw new Error(
-        `Unhandled rule doc title format: ${String(
-          ruleDocTitleFormatWithFallback,
-        )}`,
-      );
-    }
-  }
-}
-
 /**
  * Generate a rule doc header for a particular rule.
- * @returns {string} - new header including marker
+ * @returns new header including marker
  */
 export function generateRuleHeaderLines(
   context: Context,
   description: string | undefined,
   name: string,
 ): string {
-  const { endOfLine } = context;
+  const {
+    endOfLine,
+    options: { framework },
+  } = context;
+
+  const title = makeRuleDocTitle(context, name, description);
 
   return [
-    makeRuleDocTitle(context, name, description),
+    ...(framework === 'starlight' ? [] : [`# ${title}`]),
     ...getRuleNoticeLines(context, name),
     '',
     END_RULE_HEADER_MARKER,

@@ -1,4 +1,4 @@
-import type { RuleDocTitleFormat } from './rule-doc-title-format.js';
+import type { RuleDocTitleFormat } from './rule-doc-title.js';
 import type { TSESLint } from '@typescript-eslint/utils';
 import type { ConfigFormat } from './config-format.js';
 
@@ -112,6 +112,17 @@ export const COLUMN_TYPE = {
 export type COLUMN_TYPE = (typeof COLUMN_TYPE)[keyof typeof COLUMN_TYPE];
 
 /**
+ * Framework options.
+ */
+export const FRAMEWORK_TYPE = {
+  NONE: 'none',
+  STARLIGHT: 'starlight',
+} as const;
+export type FRAMEWORK_TYPE =
+  (typeof FRAMEWORK_TYPE)[keyof typeof FRAMEWORK_TYPE];
+export const FRAMEWORK_TYPES = Object.values(FRAMEWORK_TYPE);
+
+/**
  * CLI/config file options.
  */
 export const OPTION_TYPE = {
@@ -121,6 +132,7 @@ export const OPTION_TYPE = {
   CHECK: 'check',
   CONFIG_EMOJI: 'configEmoji',
   CONFIG_FORMAT: 'configFormat',
+  FRAMEWORK: 'framework',
   IGNORE_CONFIG: 'ignoreConfig',
   IGNORE_DEPRECATED_RULES: 'ignoreDeprecatedRules',
   INIT_RULE_DOCS: 'initRuleDocs',
@@ -208,6 +220,9 @@ export type GenerateOptions = {
 
   /** The format to use for config names. Default: `name`. */
   readonly configFormat?: ConfigFormat;
+
+  /** The doc site framework you're using. Informs how rule doc headers are formatted (e.g. title placement, frontmatter). Default: `none`. */
+  readonly framework?: FRAMEWORK_TYPE;
 
   /** Configs to ignore from being displayed. Often used for an `all` config. */
   readonly ignoreConfig?: readonly string[];

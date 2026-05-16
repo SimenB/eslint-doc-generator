@@ -2,9 +2,58 @@
 
 import type { Context } from './context.js';
 
+export function extractFrontmatter(context: Context, markdown: string) {
+  const { endOfLine } = context;
+  const lines = markdown.split(endOfLine);
+  const frontMatterStart = lines.indexOf('---');
+
+  // Frontmatter must start at the beginning of the file to be considered valid, so if we don't find '---' at the beginning, we want to ignore it.
+  if (frontMatterStart !== 0) {
+    return undefined;
+  }
+  const frontMatterEnd = lines.indexOf('---', frontMatterStart + 1);
+  if (frontMatterEnd !== -1) {
+    return lines.slice(frontMatterStart, frontMatterEnd + 1).join(endOfLine);
+  }
+  return undefined;
+}
+
+/**
+ * Replace the frontmatter, if present.  If not and we have newFrontmatter to add, then add it at the beginning.
+ * @param context - execution context
+ * @param markdown - doc content
+ * @param newFrontmatter - new frontmatter
+ */
+export function replaceOrCreateFrontmatter(
+  context: Context,
+  markdown: string,
+  newFrontmatter: string | undefined,
+): string {
+  // If we don't have any frontmatter coming in, then just return the original markdown
+  if (!newFrontmatter) {
+    return markdown;
+  }
+
+  const { endOfLine } = context;
+
+  const lines = markdown.split(endOfLine);
+
+  const frontmatterStartIndex = lines.indexOf('---');
+
+  // If there's no existing frontmatter, just add it to the top.
+  if (frontmatterStartIndex !== 0) {
+    return [newFrontmatter, markdown].join(endOfLine);
+  }
+
+  const frontmatterEndIndex = lines.indexOf('---', frontmatterStartIndex + 1);
+  const postFrontmatter = lines.slice(frontmatterEndIndex + 1).join(endOfLine);
+  return [newFrontmatter, postFrontmatter].join(endOfLine);
+}
+
 /**
  * Replace the header of a doc up to and including the specified marker.
  * Insert at beginning if header doesn't exist.
+ * @param context - execution context
  * @param markdown - doc content
  * @param newHeader - new header including marker
  * @param marker - marker to indicate end of header
